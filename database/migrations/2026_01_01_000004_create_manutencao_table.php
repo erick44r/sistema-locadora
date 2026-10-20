@@ -6,14 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('manutençãos', function (Blueprint $table) {
+        Schema::create('manutencao', function (Blueprint $table) {
             $table->id('id_manutencao');
-            $table->foreignId('id_maquina')->constrained('maquina');
+            $table->foreignId('id_maquina')->constrained('maquina', 'id_maquina');
             $table->date('data_inicio');
             $table->date('data_prevista_fim')->nullable();
             $table->decimal('custo_manutencao', 10, 2)->nullable();
@@ -21,9 +18,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('manutencao');

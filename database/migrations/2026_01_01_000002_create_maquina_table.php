@@ -6,21 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    
     public function up(): void
     {
         Schema::create('maquina', function (Blueprint $table) {
-            $table->id();
-            $table->string('num_serie', 50);
-            $table->string ('tipo_descricao', 100);
+            $table->id('id_maquina');
+            $table->string('num_serie', 50)->unique();
+            $table->string('tipo_descricao', 100);
             $table->decimal('valor_diaria', 10, 2);
-            $table->enum('status', ['disponivel', 'alugada', 'manutencao'])->default('disponivel');            
+            $table->enum('status', ['disponivel', 'alugada', 'manutencao'])->default('disponivel');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('maquina');

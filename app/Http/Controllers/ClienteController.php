@@ -3,63 +3,63 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class ClienteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    private function rules(): array
     {
-        //
+        return [
+            'nome'     => 'required|string|max:100',
+            'email'    => 'nullable|email|max:100',
+            'telefone' => 'nullable|string|max:20',
+            'cidade'   => 'nullable|string|max:80',
+        ];
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    public function index(Request $request)
+    {
+        $clientes = Cliente::when($request->q, fn ($q, $t) => $q->where('nome', 'like', "%{$t}%"))
+            ->orderBy('nome')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admin.clientes.index', compact('clientes'));
+    }
+
     public function create()
     {
-        //
+        return view('admin.clientes.form', ['cliente' => new Cliente()]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        Cliente::create($request->validate($this->rules()));
+
+        return redirect()->route('admin.clientes.index')->with('success', 'Cliente cadastrado.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Cliente $cliente)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Cliente $cliente)
     {
-        //
+        return view('admin.clientes.form', compact('cliente'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Cliente $cliente)
     {
-        //
+        $cliente->update($request->validate($this->rules()));
+
+        return redirect()->route('admin.clientes.index')->with('success', 'Cliente atualizado.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Cliente $cliente)
     {
-        //
+        try {
+            $cliente->delete();
+        } catch (QueryException $e) {
+            return back()->with('error', 'Não é possível excluir: o cliente possui locações vinculadas.');
+        }
+
+        return redirect()->route('admin.clientes.index')->with('success', 'Cliente excluído.');
     }
 }

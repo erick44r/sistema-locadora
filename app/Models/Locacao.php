@@ -23,8 +23,8 @@ class Locacao extends Model
         'valor_total'=> 'decimal:2',
     ];
 
-    public const TIPO_PAGAMENTO = ['diaria' => 'Diária', 'semanal' => 'Semanal', 'mensal' => 'Mensal'];
-    public const FORMA_PAGAMENTO = ['dinheiro' => 'Dinheiro', 'cartao' => 'Cartão', 'pix' => 'Pix'];
+    public const TIPOS_PAGAMENTO = ['diaria' => 'Diária', 'semanal' => 'Semanal', 'mensal' => 'Mensal'];
+    public const FORMAS_PAGAMENTO = ['dinheiro' => 'Dinheiro', 'cartao' => 'Cartão', 'pix' => 'Pix'];
 
     public function cliente(): BelongsTo
     {
