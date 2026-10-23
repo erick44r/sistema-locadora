@@ -16,7 +16,7 @@ class Cliente extends Model
         'nome',
         'email',
         'telefone',
-        'endereco',
+        'cidade',
     ];
 
     public function locacoes():HasMany 

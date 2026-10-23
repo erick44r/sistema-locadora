@@ -8,7 +8,7 @@
         ['Clientes', $totais['clientes'], 'admin.clientes.index'],
         ['Máquinas', $totais['maquinas'], 'admin.maquinas.index'],
         ['Locações em aberto', $totais['abertas'], 'admin.locacoes.index'],
-        ['Locações em atraso', $totais['atrasadas'], 'admin.relatorios.atraso'],
+        ['Máquinas em manutenção', $totais['manutencao'], 'admin.manutencoes.index'],
     ] as [$rotulo, $valor, $rota])
         <div class="col-6 col-lg-3">
             <a href="{{ route($rota) }}" class="text-decoration-none">

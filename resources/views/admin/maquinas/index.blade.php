@@ -27,7 +27,7 @@
                     <td>{{ $m->tipo_descricao }}</td>
                     <td>R$ {{ number_format($m->valor_diaria, 2, ',', '.') }}</td>
                     <td>
-                        <span class="badge text-bg-{{ ['disponivel' => 'success', 'alugada' => 'primary', 'manutencao' => 'warning'][$m->status] ?? 'secondary' }}">
+                        <span class="badge text-bg-{{ ['disponivel' => 'success', 'alugada' => 'primary', 'manutencao' => 'warning', 'indisponivel' => 'danger'][$m->status] ?? 'secondary'}}">
                             {{ \App\Models\Maquina::STATUS[$m->status] ?? $m->status }}
                         </span>
                     </td>

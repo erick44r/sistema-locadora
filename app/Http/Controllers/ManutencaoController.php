@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Maquina;
 use App\Models\Manutencao;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ManutencaoController extends Controller
 {
@@ -36,9 +37,29 @@ class ManutencaoController extends Controller
 
     public function store(Request $request)
     {
-        Manutencao::create($request->validate($this->rules()));
+    $data = $request->validate($this->rules());
+    $maquina = Maquina::findOrFail($data['id_maquina']);
 
-        return redirect()->route('admin.manutencoes.index')->with('success', 'Manutenção registrada.');
+    if ($maquina->status === 'alugada') {
+        return back()->withInput()->withErrors([
+            'id_maquina' => 'Esta máquina está alugada. Registre a devolução antes de enviá-la para manutenção.',
+        ]);
+    }
+
+    // Só muda o status se a manutenção já começou e ainda não terminou
+    $hoje = now()->toDateString();
+    $emAndamento = $data['data_inicio'] <= $hoje
+        && (empty($data['data_prevista_fim']) || $data['data_prevista_fim'] >= $hoje);
+
+    DB::transaction(function () use ($data, $maquina, $emAndamento) {
+        Manutencao::create($data);
+
+        if ($emAndamento) {
+            $maquina->update(['status' => 'manutencao']);
+        }
+    });
+
+    return redirect()->route('admin.manutencoes.index')->with('success', 'Manutenção registrada.');
     }
 
     public function edit(Manutencao $manutencao)
@@ -56,10 +77,41 @@ class ManutencaoController extends Controller
         return redirect()->route('admin.manutencoes.index')->with('success', 'Manutenção atualizada.');
     }
 
-    public function destroy(Manutencao $manutencao)
+
+    public function concluir(Manutencao $manutencao)
     {
+        DB::transaction(function () use ($manutencao) {
+            if (is_null($manutencao->data_prevista_fim) || $manutencao->data_prevista_fim->isFuture()) {
+                $manutencao->update(['data_prevista_fim' => now()->toDateString()]);
+            }
+
+            $manutencao->maquina()->where('status', 'manutencao')->update(['status' => 'disponivel']);
+        });
+
+        return back()->with('success', 'Manutenção concluída. A máquina está disponível.');
+    }
+
+
+    public function destroy(Manutencao $manutencao)
+{
+    DB::transaction(function () use ($manutencao) {
+        $idMaquina = $manutencao->id_maquina;
         $manutencao->delete();
 
-        return redirect()->route('admin.manutencoes.index')->with('success', 'Manutenção excluída.');
-    }
+        // Se não sobrou outra manutenção em andamento, libera a máquina
+        $outraEmAndamento = Manutencao::where('id_maquina', $idMaquina)
+            ->where(function ($q) {
+                $q->whereNull('data_prevista_fim')
+                  ->orWhereDate('data_prevista_fim', '>=', now()->toDateString());
+            })->exists();
+
+        if (!$outraEmAndamento) {
+            Maquina::where('id_maquina', $idMaquina)
+                ->where('status', 'manutencao')
+                ->update(['status' => 'disponivel']);
+        }
+    });
+
+    return redirect()->route('admin.manutencoes.index')->with('success', 'Manutenção excluída.');
+}
 }

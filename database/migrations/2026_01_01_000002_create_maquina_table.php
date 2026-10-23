@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('num_serie', 50)->unique();
             $table->string('tipo_descricao', 100);
             $table->decimal('valor_diaria', 10, 2);
-            $table->enum('status', ['disponivel', 'alugada', 'manutencao'])->default('disponivel');
+            $table->enum('status', ['disponivel', 'alugada', 'manutencao', 'indisponivel'])->default('disponivel');
         });
     }
 

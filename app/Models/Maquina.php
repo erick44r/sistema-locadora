@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Maquina extends Model
-{
+    class Maquina extends Model
+        {
     protected $table = 'maquina';
     protected $primaryKey = 'id_maquina';
     public $timestamps = false;
@@ -15,9 +15,10 @@ class Maquina extends Model
     protected $casts = ['valor_diaria'=> 'decimal:2'];
 
     public const STATUS = [
-        'disponivel' => 'Disponível',
-        'alugada' => 'Alugada',
-        'manutencao' => 'Em manutenção',
+        'disponivel'   => 'Disponível',
+        'alugada'      => 'Alugada',
+        'manutencao'   => 'Em manutenção',
+        'indisponivel' => 'Indisponível',
     ];
 
     public function locacoes(): HasMany
@@ -29,4 +30,4 @@ class Maquina extends Model
     {
         return $this->hasMany(Manutencao::class, 'id_maquina', 'id_maquina');
     }
-}
+        }

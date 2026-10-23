@@ -21,10 +21,26 @@
                     <td>{{ optional($mt->data_prevista_fim)->format('d/m/Y') }}</td>
                     <td>R$ {{ number_format($mt->custo_manutencao ?? 0, 2, ',', '.') }}</td>
                     <td>{{ $mt->descricao }}</td>
-                    <td>@include('admin._acoes', [
-                        'edit'    => route('admin.manutencoes.edit', $mt),
-                        'destroy' => route('admin.manutencoes.destroy', $mt),
-                    ])</td>
+                    <td>
+                        <div class="d-flex gap-1 justify-content-end">
+                            @if ($mt->maquina->status === 'manutencao'
+                                 && (is_null($mt->data_prevista_fim) || $mt->data_prevista_fim->greaterThanOrEqualTo(today())))
+                                <form method="POST" action="{{ route('admin.manutencoes.concluir', $mt) }}"
+                                      onsubmit="return confirm('Concluir a manutenção e liberar a máquina?')">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button class="btn btn-sm btn-outline-success">Concluir</button>
+                                </form>
+                            @endif
+                            <a href="{{ route('admin.manutencoes.edit', $mt) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                            <form method="POST" action="{{ route('admin.manutencoes.destroy', $mt) }}"
+                                  onsubmit="return confirm('Excluir este registro?')">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-outline-danger">Excluir</button>
+                            </form>
+                        </div>
+                    </td>
                 </tr>
             @empty
                 <tr><td colspan="7" class="text-center text-muted">Nenhuma manutenção registrada.</td></tr>

@@ -23,13 +23,20 @@
             <input type="number" step="0.01" min="0" name="valor_diaria" class="form-control" required
                    value="{{ old('valor_diaria', $maquina->valor_diaria) }}">
         </div>
-        <div class="col-md-6">
-            <label class="form-label">Status *</label>
-            <select name="status" class="form-select" required>
-                @foreach (\App\Models\Maquina::STATUS as $valor => $rotulo)
-                    <option value="{{ $valor }}" @selected(old('status', $maquina->status) === $valor)>{{ $rotulo }}</option>
-                @endforeach
-            </select>
+                <div class="col-md-6">
+            <label class="form-label">Status</label>
+            @php $atual = old('status', $maquina->status ?: 'disponivel'); @endphp
+        
+            @if (in_array($atual, ['alugada', 'manutencao']))
+                <input class="form-control" disabled value="{{ \App\Models\Maquina::STATUS[$atual] }}">
+                <input type="hidden" name="status" value="{{ $atual }}">
+                <div class="form-text">Alterado automaticamente pelas locações e manutenções.</div>
+            @else
+                <select name="status" class="form-select" required>
+                    <option value="disponivel" @selected($atual === 'disponivel')>Disponível</option>
+                    <option value="indisponivel" @selected($atual === 'indisponivel')>Indisponível</option>
+                </select>
+            @endif
         </div>
     </div>
 

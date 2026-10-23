@@ -23,9 +23,7 @@ Route::middleware('auth')->group(function () {
             'clientes'  => Cliente::count(),
             'maquinas'  => Maquina::count(),
             'abertas'   => Locacao::whereNull('data_devolucao')->count(),
-            'atrasadas' => Locacao::whereNull('data_devolucao')
-                                  ->whereDate('data_prevista_devolucao', '<', now()->toDateString())
-                                  ->count(),
+            'manutencao' => Maquina::where('status', 'manutencao')->count(),
         ];
 
         return view('admin.dashboard', compact('totais'));
@@ -38,6 +36,7 @@ Route::middleware('auth')->group(function () {
             ->parameters(['locacoes' => 'locacao'])
             ->except('show');
         Route::patch('locacoes/{locacao}/devolver', [LocacaoController::class, 'devolver'])->name('locacoes.devolver');
+        Route::patch('manutencoes/{manutencao}/concluir', [ManutencaoController::class, 'concluir'])->name('manutencoes.concluir');       
         Route::resource('manutencoes', ManutencaoController::class)
             ->parameters(['manutencoes' => 'manutencao'])
             ->except('show');
