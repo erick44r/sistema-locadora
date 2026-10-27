@@ -6,6 +6,7 @@ use App\Http\Controllers\MaquinaController;
 use App\Http\Controllers\ManutencaoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RelatorioController;
+use App\Http\Controllers\ContatoController;
 use App\Models\Cliente;
 use App\Models\Locacao;
 use App\Models\Maquina;
@@ -13,7 +14,10 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::view('/', 'site')->name('home');
-Route::view('/contato', 'contato')->name('contato');
+Route::get('/contato', [ContatoController::class, 'index'])->name('contato');
+Route::post('/contato', [ContatoController::class, 'enviar'])
+    ->middleware('throttle:5,1')   // no máximo 5 envios por minuto por visitante
+    ->name('contato.enviar');
 
 
 Route::middleware('auth')->group(function () {
